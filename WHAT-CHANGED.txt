@@ -1,0 +1,13 @@
+Between the Lines: design and reactions update
+
+Upload the CONTENTS of this folder (worker, src, wrangler.jsonc) into
+between-the-lines/between-the-lines in GitHub. Matching files are replaced.
+
+Before uploading: open wrangler.jsonc and replace
+PASTE_YOUR_KV_NAMESPACE_ID_HERE with your Cloudflare KV namespace ID.
+
+New:      worker/index.js            (stores reader reactions)
+          src/components/Reactions.astro
+Changed:  wrangler.jsonc, src/styles/global.css, src/layouts/Base.astro,
+          src/pages/*, src/components/PostList.astro, src/utils.ts
+Posts:    your nine Medium posts (sample posts removed)

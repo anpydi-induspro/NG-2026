@@ -15,6 +15,6 @@ const { tag } = Astro.params;
 const { posts } = Astro.props;
 ---
 <Base title={`Posts on ${tag}`}>
-  <h1 class="page-title">Posts on {tag}</h1>
+  <h1 class="page-title">Posts on {tag.replace(/-/g, " ")}</h1>
   <PostList posts={posts} />
 </Base>

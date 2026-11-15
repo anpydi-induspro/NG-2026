@@ -1,12 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
-import { SITE_TITLE, SITE_TAGLINE } from '../consts';
+import { SITE_TITLE, SITE_TAGLINE, AUTHOR } from '../consts';
 import { getPosts } from '../utils';
 const posts = await getPosts();
 ---
 <Base>
   <section class="hero">
+    <p class="note hero-note">a notebook by {AUTHOR}</p>
     <h1>{SITE_TITLE}</h1>
     <p class="tagline">{SITE_TAGLINE}</p>
   </section>

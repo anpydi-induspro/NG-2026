@@ -1,29 +1,61 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Reactions from '../../components/Reactions.astro';
 import { render } from 'astro:content';
-import { getPosts, formatDate } from '../../utils';
+import { getPosts, formatDate, readingTime } from '../../utils';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
-  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+  }));
 }
-const { post } = Astro.props;
+const { post, newer, older } = Astro.props;
 const { Content } = await render(post);
+const minutes = readingTime(post.body);
 ---
 <Base title={post.data.title} description={post.data.description}>
+  <div class="ink" aria-hidden="true"></div>
   <article>
     <header class="post-head">
-      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+      <p class="note post-note">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+        <span>{minutes} min read</span>
+      </p>
       <h1>{post.data.title}</h1>
       {post.data.tags.length > 0 && (
         <p class="tags">Filed under {post.data.tags.map((t, i) => (
-          <>{i > 0 && ', '}<a href={`/tags/${t}/`}>{t}</a></>
+          <>{i > 0 && ', '}<a href={`/tags/${t}/`}>{t.replace(/-/g, ' ')}</a></>
         ))}</p>
       )}
     </header>
     <div class="prose">
       <Content />
     </div>
-    <p class="back"><a href="/">Back to all writing</a></p>
+    <Reactions slug={post.id} />
+    {(newer || older) && (
+      <nav class="post-nav" aria-label="More writing">
+        {older ? <a class="prev" href={`/posts/${older.id}/`}><span class="note">older</span>{older.data.title}</a> : <span />}
+        {newer ? <a class="next" href={`/posts/${newer.id}/`}><span class="note">newer</span>{newer.data.title}</a> : <span />}
+      </nav>
+    )}
   </article>
+  <script>
+    const ink = document.querySelector<HTMLElement>('.ink');
+    const art = document.querySelector('article');
+    if (ink && art) {
+      let ticking = false;
+      const update = () => {
+        const r = art.getBoundingClientRect();
+        const total = r.height - window.innerHeight * 0.6;
+        const p = Math.min(1, Math.max(0, (window.innerHeight * 0.4 - r.top) / Math.max(total, 1)));
+        ink.style.transform = `scaleY(${p})`;
+        ticking = false;
+      };
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+      addEventListener('resize', update);
+      update();
+    }
+  </script>
 </Base>

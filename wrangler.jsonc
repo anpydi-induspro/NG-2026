@@ -1,8 +1,17 @@
 {
-  "name": "between-the-lines",
+  "name": "ng-2026",
+  "main": "./worker/index.js",
   "compatibility_date": "2026-11-01",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
-  }
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "REACTIONS",
+      "id": "d87272c1f150485a895f37a7bbbccc0d"
+    }
+  ]
 }

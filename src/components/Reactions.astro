@@ -1,0 +1,72 @@
+---
+const { slug } = Astro.props;
+const kinds = [
+  { id: 'felt', label: 'Felt this', icon: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>' },
+  { id: 'think', label: 'Made me think', icon: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>' },
+  { id: 'smile', label: 'Made me smile', icon: '<circle cx="12" cy="12" r="8.5"/><path d="M8.5 14c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2"/><path d="M9.5 9.5h.01M14.5 9.5h.01"/>' },
+];
+---
+<section class="marks" data-slug={slug} aria-labelledby="marks-title">
+  <h2 id="marks-title" class="marks-title">Leave a mark</h2>
+  <p class="marks-hint">If this stayed with you, let me know. No sign-in needed.</p>
+  <div class="marks-row">
+    {kinds.map((k) => (
+      <button type="button" class="mark" data-kind={k.id} aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" set:html={k.icon} />
+        <span class="mark-label">{k.label}</span>
+        <span class="mark-count" aria-live="polite"></span>
+      </button>
+    ))}
+    <button type="button" class="mark mark-share" data-share>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+      <span class="mark-label">Copy link</span>
+    </button>
+  </div>
+</section>
+
+<script>
+  const box = document.querySelector<HTMLElement>('.marks');
+  if (box) {
+    const slug = box.dataset.slug!;
+    const key = `btl-marks:${slug}`;
+    const read = (): string[] => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } };
+    const write = (v: string[]) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} };
+    let mine = read();
+    let counts: Record<string, number> = {};
+    const buttons = [...box.querySelectorAll<HTMLButtonElement>('.mark[data-kind]')];
+
+    const paint = () => buttons.forEach((b) => {
+      const k = b.dataset.kind!;
+      const on = mine.includes(k);
+      b.setAttribute('aria-pressed', String(on));
+      const n = counts[k] ?? 0;
+      b.querySelector('.mark-count')!.textContent = n > 0 ? String(n) : '';
+    });
+
+    fetch(`/api/reactions/${slug}`).then((r) => r.ok ? r.json() : {}).then((c) => { counts = c || {}; paint(); }).catch(() => paint());
+
+    buttons.forEach((b) => b.addEventListener('click', async () => {
+      const k = b.dataset.kind!;
+      const adding = !mine.includes(k);
+      mine = adding ? [...mine, k] : mine.filter((x) => x !== k);
+      counts[k] = Math.max(0, (counts[k] ?? 0) + (adding ? 1 : -1));
+      write(mine); paint();
+      if (adding) { b.classList.remove('stamped'); void b.offsetWidth; b.classList.add('stamped'); }
+      try {
+        const r = await fetch(`/api/reactions/${slug}`, {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ kind: k, action: adding ? 'add' : 'remove' }),
+        });
+        if (r.ok) { counts = await r.json(); paint(); }
+      } catch {}
+    }));
+
+    const share = box.querySelector<HTMLButtonElement>('[data-share]');
+    share?.addEventListener('click', async () => {
+      const label = share.querySelector('.mark-label')!;
+      try { await navigator.clipboard.writeText(location.href); label.textContent = 'Link copied'; }
+      catch { label.textContent = 'Copy the address bar'; }
+      setTimeout(() => (label.textContent = 'Copy link'), 2200);
+    });
+  }
+</script>
