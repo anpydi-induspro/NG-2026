@@ -2,11 +2,18 @@
 import Base from '../layouts/Base.astro';
 import { AUTHOR } from '../consts';
 ---
-<Base title="About">
+<Base title="About" description={`About ${AUTHOR} and why this blog exists.`}>
   <h1 class="page-title">About</h1>
   <div class="prose">
-    <p>Hi, I'm {AUTHOR}. By day I work on business systems, and the rest of the time I think about life, work, and the ideas that sit underneath them.</p>
-    <p>This blog is where I write those thoughts down. Some posts are about work, some about spirit and meaning, and some are just about noticing things.</p>
-    <p>Edit this page in <code>src/pages/about.astro</code> to tell readers about yourself.</p>
+    <p>Hi, I'm {AUTHOR}.</p>
+    <p>I love animals. There is something about the way they give their whole heart to you, asking for nothing back, that makes life feel softer. I share my home with two Golden retrievers, and they have taught me more about being present than any book ever has.</p>
+    <p>By profession, I work in fintech, where finance meets technology. I help companies with their finance and tax work, and I enjoy finding better, smarter ways to solve old problems.</p>
+    <p>I am an immigrant. Building a new life in a new country was not easy. It came with hard days and proud ones, and it shaped the way I see the world. It made me patient. It made me strong.</p>
+    <p>But before all of that, I am a father. I have two beautiful daughters, and their laughter and endless questions fill my days with wonder.</p>
+    <h2>Why this blog</h2>
+    <p>These days, I am trying to put all of this into words. My family, my dogs, the road I have walked. I am still learning how to say it well.</p>
+    <p>That is what this place is for. The things that happen between the lines of an ordinary day: a cup of coffee, a song heard at a roadside tea stall, a conversation with a dog who has opinions. Some posts are about work, some about meaning, and some are just about noticing.</p>
+    <p>This is me, beginning to try. Thank you for reading.</p>
+    <p><a href="/">Read the writing</a>, or follow along with the <a href="/rss.xml">RSS feed</a>.</p>
   </div>
 </Base>
