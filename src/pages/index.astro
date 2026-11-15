@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import { SITE_TITLE, SITE_TAGLINE } from '../consts';
+import { getPosts } from '../utils';
+const posts = await getPosts();
+---
+<Base>
+  <section class="hero">
+    <h1>{SITE_TITLE}</h1>
+    <p class="tagline">{SITE_TAGLINE}</p>
+  </section>
+  <h2 class="section-title">Recent writing</h2>
+  {posts.length ? <PostList posts={posts} /> : <p>No posts yet. Add a Markdown file to src/content/posts to publish your first one.</p>}
+</Base>
